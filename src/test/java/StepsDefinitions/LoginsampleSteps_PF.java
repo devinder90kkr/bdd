@@ -2,7 +2,6 @@ package StepsDefinitions;
 
 import java.util.concurrent.TimeUnit;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
@@ -10,17 +9,20 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import pagefactory.HomePage_PF;
+import pagefactory.LoginPage_PF;
 
-public class LoginsampleSteps {
+public class LoginsampleSteps_PF {
 	
 	WebDriver driver = null;
-	private By emailInput = By.name("email");
-    private By passwordInput = By.name("password");
-    private By loginButton = By.xpath("//button[normalize-space()='Login']");
+	LoginPage_PF login;
+	HomePage_PF home;
 	
+	@SuppressWarnings("deprecation")
 	@Given("Brower is open")
 	public void brower_is_open() {
-		System.out.println("Inside Step - brower is open");
+		
+		System.out.println("=====Inside Step - LoginsampleSteps_PF====");
 		
 		String projectPath = System.getProperty("user.dir");
 		System.out.println("Project path is :" +projectPath);
@@ -31,34 +33,41 @@ public class LoginsampleSteps {
 		driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
 		driver.manage().timeouts().pageLoadTimeout(40, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
-		
+		// Initialize the login page object here
+		login = new LoginPage_PF(driver);
+		home = new HomePage_PF(driver);  // Initialize the home page object here
+	
 	}
 
-	@Given("the user is on login page")
+	@And("the user is on login page")
 	public void the_user_is_on_login_page() {
-		System.out.println("Inside Step - the user is on login page");
-		
+		System.out.println("Inside Step - the user is on login page");	
 		driver.navigate().to("https://pre-staging.app.cuesz.com/login");
+		
 	}
 
-	@When("user enter username and password")
-	public void user_enter_username_and_password() {
-		System.out.println("Inside Step - user enter username and password");
-		 driver.findElement(emailInput).sendKeys("markcuesz90@yopmail.com");
-		 driver.findElement(passwordInput).sendKeys("User!234");
+	@When("^user enter (.*) and (.*)$")
+	public void user_enter_username_and_password(String email, String password) throws InterruptedException {
+		login.enterUsername(email);
+		login.enterpassword(password);
+	Thread.sleep(2500);
 	}
 
-	@And ("the user click on Login button")
+	@When ("the user click on Login button")
 	public void the_user_click_on_Login_button() {
-		System.out.println("Inside Step - the user click on Login button");
-		 driver.findElement(loginButton).click();
+	//	System.out.println("Inside Step - the user click on Login button");
+		login.clickOnLogin();
+		
 	}
 	
 	@Then("the user should be redirected to the homepage")
-	public void the_user_should_be_redirected_to_the_homepage() {
+	public void the_user_should_be_redirected_to_the_homepage() throws InterruptedException {
 		System.out.println("Inside Step - the user should be redirected to the homepage");
-		driver.findElement(By.xpath("//div[@id='Dashboard-Notification-Settings']//em")).isDisplayed();
+		home.clickOnLogout();
+		Thread.sleep(2000);
+		home.clickOnConfirm();
 		
+		Thread.sleep(2500);
 		driver.close();
 		driver.quit();
 	}
